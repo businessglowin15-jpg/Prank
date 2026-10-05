@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prank Link</title>
+<meta name="theme-color" content="#1e1433">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1e1433;--muted:#6b6482;--bg:#f6f3ff;--card:#fff;--brand:#5b3df5;--brand-d:#4a2fd6;--pop:#ffd84d;--line:#e4def7;--err:#c0262d;--wa:#1faa59}
+@media(prefers-color-scheme:dark){:root{--ink:#f2eefc;--muted:#a69fc0;--bg:#150e26;--card:#211838;--line:#34294f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
+.wrap{max-width:460px;margin:0 auto;padding:16px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 0 16px}
+.brand{font:800 20px 'Bricolage Grotesque',Inter,sans-serif;color:var(--ink);text-decoration:none;background:linear-gradient(transparent 62%,var(--pop) 62%)}
+h1,h2{font-family:'Bricolage Grotesque',Inter,sans-serif;line-height:1.15;margin:0 0 8px}
+h1{font-size:28px}h2{font-size:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 8px 24px rgba(40,20,100,.07)}
+.view{animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.center{text-align:center}.muted{color:var(--muted)}.small{font-size:13px}
+.big{font-size:56px}
+label{display:block;font-weight:600;margin:16px 0 6px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+input:focus,textarea:focus,.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--pop);border-color:var(--brand)}
+textarea{resize:vertical}
+.count{text-align:right;font-size:12px;color:var(--muted);margin:4px 0 12px}
+.btn{display:block;width:100%;margin-top:12px;padding:13px 16px;border:0;border-radius:12px;background:var(--brand);color:#fff;font:600 16px Inter,sans-serif;text-align:center;text-decoration:none;cursor:pointer;transition:background .15s,transform .1s}
+.btn:hover{background:var(--brand-d)}.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.btn.wa{background:var(--wa)}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;font:600 14px Inter,sans-serif;cursor:pointer}
+.preview{background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin:14px 0}
+.preview p{margin:2px 0 0;font-weight:500;word-break:break-word}
+.link{font-size:14px;margin-top:4px}
+blockquote{margin:6px 0 4px;padding:14px 16px;border-left:5px solid var(--pop);background:var(--bg);border-radius:0 12px 12px 0;font:700 21px/1.3 'Bricolage Grotesque',Inter,sans-serif;word-break:break-word}
+.privacy{font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 12px;margin:16px 0 0}
+.spinner{width:30px;height:30px;margin:8px auto;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ref{margin-bottom:14px}
+.ref header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ref .msg{font-weight:600;word-break:break-word;margin:0}
+.code{font:600 12px Inter,sans-serif;color:var(--brand);background:var(--bg);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.badge{font-size:13px;color:var(--muted);margin:4px 0 8px}
+.sub{border-top:1px solid var(--line);padding:10px 0 0;margin-top:10px}
+.sub b{word-break:break-word}.sub time{display:block;font-size:12px;color:var(--muted)}
+.mini{display:inline-block;width:auto;padding:8px 14px;margin:6px 0 0;font-size:14px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90vw;z-index:9}
+#toast.show{opacity:1;transform:translate(-50%,0)}#toast.err{background:var(--err);color:#fff}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <a class="brand" href="./" id="brand">Prank Link</a>
+    <button class="chip" id="historyBtn" hidden>My History</button>
+  </header>
+
+  <section id="loading" class="view card center"><div class="spinner"></div><p class="muted">Loading…</p></section>
+
+  <section id="errorView" class="view card center" hidden>
+    <h2 id="errorTitle">Something went wrong</h2>
+    <p class="muted" id="errorText"></p>
+    <button class="btn" id="errorBtn">Create my own link</button>
+  </section>
+
+  <section id="createView" class="view card" hidden>
+    <h1>Create your prank link</h1>
+    <p class="muted">Write a teaser. Friends who open your link enter two names, and you get to see them.</p>
+    <label for="msg">Your message</label>
+    <textarea id="msg" maxlength="140" rows="3" placeholder="Hey! I found something funny about you 😂"></textarea>
+    <div class="count"><span id="msgCount">0</span>/140</div>
+    <button class="btn" id="createBtn">Create Link</button>
+  </section>
+
+  <section id="createdView" class="view card" hidden>
+    <h1>Link created</h1>
+    <p class="muted">Share it with friends. Names they enter appear in My History.</p>
+    <div class="preview"><span class="muted small">Preview</span><p id="previewMsg"></p></div>
+    <input id="linkOut" class="link" readonly aria-label="Your link">
+    <div class="row">
+      <button class="btn" id="copyBtn">Copy Link</button>
+      <button class="btn ghost" id="shareBtn">Share</button>
+    </div>
+    <a class="btn wa" id="waBtn" target="_blank" rel="noopener">Share on WhatsApp</a>
+    <button class="btn ghost" id="toHistory">View My History</button>
+  </section>
+
+  <section id="incomingView" class="view card" hidden>
+    <p class="muted small">Someone sent you a message</p>
+    <blockquote id="incomingMsg"></blockquote>
+    <label for="n1">Name 1</label>
+    <input id="n1" maxlength="40" placeholder="Enter a name" autocomplete="off">
+    <label for="n2">Name 2</label>
+    <input id="n2" maxlength="40" placeholder="Enter a name" autocomplete="off">
+    <p class="privacy">🔒 The names you enter will be submitted to the person who shared this link.</p>
+    <button class="btn" id="revealBtn">Reveal</button>
+  </section>
+
+  <section id="ownLinkView" class="view card" hidden>
+    <h2>This is your own link</h2>
+    <p class="muted">Share it with friends instead. Their names will show up in your history.</p>
+    <div class="row">
+      <button class="btn" id="ownCopy">Copy Link</button>
+      <button class="btn ghost" id="ownHistory">My History</button>
+    </div>
+  </section>
+
+  <section id="resultView" class="view card center" hidden>
+    <div class="big">😄</div>
+    <h1>You got pranked! 😄</h1>
+    <p class="muted">Your two names were sent to the person who shared the link.</p>
+    <p>Want to make your own prank link and discover two names from your friends?</p>
+    <button class="btn" id="createMine">Create My Link</button>
+  </section>
+
+  <section id="historyView" class="view" hidden>
+    <h1>My History</h1>
+    <div id="historyList"></div>
+    <button class="btn ghost" id="newLink">Create another link</button>
+  </section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, get, set, update, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+// Firebase config (public by design; security comes from the Database Rules).
+const firebaseConfig = {
+  apiKey: "AIzaSyD5IQpzEAG0MjAUU7iOH19ueHltL_fO-CM",
+  authDomain: "refer-2c1d9.firebaseapp.com",
+  databaseURL: "https://refer-2c1d9-default-rtdb.firebaseio.com",
+  projectId: "refer-2c1d9",
+  storageBucket: "refer-2c1d9.firebasestorage.app",
+  messagingSenderId: "173106651302",
+  appId: "1:173106651302:web:5661aec1dd526d79465467",
+  measurementId: "G-XJ6D6XJ4N9"
+};
+
+
+const $ = id => document.getElementById(id);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const VIEWS = ["loading","errorView","createView","createdView","incomingView","ownLinkView","resultView","historyView"];
+const CODE_RE = /^[A-Z0-9]{6,10}$/;
+let uid = null, currentCode = null, lastLink = "";
+
+const show = id => { VIEWS.forEach(v => $(v).hidden = v !== id); window.scrollTo(0, 0); };
+const toast = (m, err) => { const t = $("toast"); t.textContent = m; t.className = "show" + (err ? " err" : ""); clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "", 2600); };
+const linkFor = code => location.href.split(/[?#]/)[0] + "?r=" + code;
+const clean = s => s.replace(/\s+/g, " ").trim();
+const fail = (title, text, btn = "Create my own link") => { $("errorTitle").textContent = title; $("errorText").textContent = text; $("errorBtn").textContent = btn; show("errorView"); };
+const busy = (b, on, label) => { b.disabled = on; if (label) b.dataset.l = b.dataset.l || b.textContent, b.textContent = on ? label : b.dataset.l; };
+const errMsg = e => e && e.code === "PERMISSION_DENIED" ? "Permission denied by database rules." : navigator.onLine ? "Please try again." : "You appear to be offline.";
+
+function signIn() {
+  return new Promise((resolve, reject) => {
+    const off = onAuthStateChanged(auth, u => { if (u) { off(); resolve(u); } });
+    if (!auth.currentUser) signInAnonymously(auth).catch(e => { off(); reject(e); });
+  });
+}
+async function ensureUser() {
+  const r = ref(db, "users/" + uid);
+  if (!(await get(r)).exists()) await set(r, { createdAt: serverTimestamp() });
+}
+function genCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", a = new Uint32Array(6);
+  crypto.getRandomValues(a);
+  return [...a].map(n => chars[n % chars.length]).join("");
+}
+
+async function createLink() {
+  const message = clean($("msg").value);
+  if (!message) return toast("Write a message first.", true);
+  if (message.length > 140) return toast("Message is too long (max 140).", true);
+  const b = $("createBtn"); busy(b, true, "Creating…");
+  try {
+    await ensureUser();
+    for (let i = 0; i < 5; i++) {
+      const code = genCode(), now = serverTimestamp();
+      try {
+        await update(ref(db), {
+          ["referrals/" + code]: { ownerUid: uid, customMessage: message, createdAt: now, submissionCount: 0 },
+          [`userReferrals/${uid}/${code}`]: true
+        });
+        return showCreated(code, message);
+      } catch (e) { if (e.code !== "PERMISSION_DENIED") throw e; } // code collision: retry
+    }
+    toast("Could not generate a unique code. Try again.", true);
+  } catch (e) { toast("Could not create link. " + errMsg(e), true); }
+  finally { busy(b, false); }
+}
+function showCreated(code, message) {
+  lastLink = linkFor(code);
+  $("previewMsg").textContent = message;
+  $("linkOut").value = lastLink;
+  $("waBtn").href = "https://wa.me/?text=" + encodeURIComponent(message + " " + lastLink);
+  $("shareBtn").hidden = !navigator.share;
+  history.replaceState(null, "", location.pathname);
+  show("createdView");
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast("Link copied!"); }
+  catch { const i = $("linkOut"); i.value = text; i.focus(); i.select(); try { document.execCommand("copy") ? toast("Link copied!") : toast("Press and hold to copy the link.", true); } catch { toast("Press and hold to copy the link.", true); } }
+}
+async function share() {
+  try { await navigator.share({ title: "Prank Link", text: $("previewMsg").textContent, url: lastLink }); }
+  catch (e) { if (e.name !== "AbortError") copy(lastLink); }
+}
+
+async function openReferral(code) {
+  if (!CODE_RE.test(code)) return fail("Invalid link", "This referral code isn't valid. Check the link and try again.");
+  try {
+    const snap = await get(ref(db, "referrals/" + code));
+    if (!snap.exists()) return fail("Link not found", "This prank link doesn't exist or was removed.");
+    const r = snap.val();
+    currentCode = code;
+    if (r.ownerUid === uid) { lastLink = linkFor(code); return show("ownLinkView"); }
+    $("incomingMsg").textContent = r.customMessage;
+    $("n1").value = $("n2").value = "";
+    show(localStorage.getItem("pranked_" + code) ? "resultView" : "incomingView");
+  } catch (e) { fail("Couldn't load this link", errMsg(e), "Try again"); $("errorBtn").onclick = () => location.reload(); }
+}
+async function reveal() {
+  const n1 = clean($("n1").value), n2 = clean($("n2").value);
+  if (!n1 || !n2) return toast("Please enter both names.", true);
+  if (n1.length > 40 || n2.length > 40) return toast("Names can be up to 40 characters.", true);
+  const b = $("revealBtn"); busy(b, true, "Sending…");
+  try {
+    const cRef = ref(db, `referrals/${currentCode}/submissionCount`);
+    const count = (await get(cRef)).val() || 0;
+    const id = push(ref(db, "submissions/" + currentCode)).key;
+    await update(ref(db), {
+      [`submissions/${currentCode}/${id}`]: { name1: n1, name2: n2, submittedAt: serverTimestamp() },
+      [`referrals/${currentCode}/submissionCount`]: count + 1
+    });
+    localStorage.setItem("pranked_" + currentCode, "1");
+    show("resultView");
+  } catch (e) { toast("Could not submit. " + (e.code === "PERMISSION_DENIED" ? "Please try again." : errMsg(e)), true); }
+  finally { busy(b, false); }
+}
+function goCreate() { history.replaceState(null, "", location.pathname); $("msg").value = ""; $("msgCount").textContent = 0; show("createView"); }
+
+async function loadHistory() {
+  show("loading");
+  try {
+    const idx = await get(ref(db, "userReferrals/" + uid));
+    const list = $("historyList"); list.innerHTML = "";
+    const codes = idx.exists() ? Object.keys(idx.val()) : [];
+    if (!codes.length) list.innerHTML = '<div class="card center"><p class="muted">No links yet. Create your first one!</p></div>';
+    const items = await Promise.all(codes.map(async c => {
+      const [r, s] = await Promise.all([get(ref(db, "referrals/" + c)), get(ref(db, "submissions/" + c))]);
+      return { c, r: r.val(), subs: s.exists() ? Object.values(s.val()).sort((a, b) => b.submittedAt - a.submittedAt) : [] };
+    }));
+    items.filter(i => i.r).sort((a, b) => b.r.createdAt - a.r.createdAt).forEach(({ c, r, subs }) => {
+      const d = document.createElement("article"); d.className = "card ref";
+      const h = document.createElement("header");
+      const p = document.createElement("p"); p.className = "msg"; p.textContent = r.customMessage;
+      const code = document.createElement("span"); code.className = "code"; code.textContent = c;
+      h.append(p, code); d.append(h);
+      const bd = document.createElement("p"); bd.className = "badge"; bd.textContent = `${r.submissionCount} submission${r.submissionCount === 1 ? "" : "s"}`; d.append(bd);
+      const cp = document.createElement("button"); cp.className = "btn ghost mini"; cp.textContent = "Copy Link"; cp.onclick = () => copy(linkFor(c)); d.append(cp);
+      subs.forEach(s => {
+        const row = document.createElement("div"); row.className = "sub";
+        const b = document.createElement("b"); b.textContent = `${s.name1} & ${s.name2}`;
+        const t = document.createElement("time"); t.textContent = new Date(s.submittedAt).toLocaleString();
+        row.append(b, t); d.append(row);
+      });
+      list.append(d);
+    });
+    show("historyView");
+  } catch (e) { fail("Couldn't load history", errMsg(e), "Try again"); $("errorBtn").onclick = loadHistory; }
+}
+
+function wire() {
+  $("errorBtn").onclick = goCreate;
+  $("msg").oninput = e => $("msgCount").textContent = e.target.value.length;
+  $("createBtn").onclick = createLink;
+  $("copyBtn").onclick = () => copy(lastLink);
+  $("shareBtn").onclick = share;
+  $("toHistory").onclick = $("ownHistory").onclick = $("historyBtn").onclick = loadHistory;
+  $("ownCopy").onclick = () => copy(lastLink);
+  $("revealBtn").onclick = reveal;
+  $("createMine").onclick = $("newLink").onclick = goCreate;
+  $("brand").onclick = e => { if (uid) { e.preventDefault(); goCreate(); } };
+  ["n1", "n2"].forEach(i => $(i).onkeydown = e => { if (e.key === "Enter") reveal(); });
+}
+
+(async () => {
+  wire();
+  try { uid = (await signIn()).uid; }
+  catch { return fail("Couldn't sign in", "Anonymous sign-in failed. Check your connection and that Anonymous Auth is enabled, then retry.", "Retry"), $("errorBtn").onclick = () => location.reload(); }
+  $("historyBtn").hidden = false;
+  const code = (new URLSearchParams(location.search).get("r") || "").trim().toUpperCase();
+  code ? openReferral(code) : goCreate();
+})();
+</script>
+</body>
+</html>
